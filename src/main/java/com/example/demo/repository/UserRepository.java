@@ -1,6 +1,5 @@
 package com.example.demo.repository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +7,9 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.example.demo.User;
+import com.example.demo.entity.User;
+import com.example.demo.request.UserRequest;
+import com.example.demo.response.UserResponse;
 
 @Repository
 public class UserRepository {
@@ -30,15 +31,15 @@ public class UserRepository {
 		return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(User.class));
 	}
 	//AddUser 
-	public int addUser(User user) {
+	public int addUser(UserRequest userequest) {
 	    String sql = "INSERT INTO user (name, email) VALUES (?, ?)";
-	    return jdbcTemplate.update(sql, user.getName(), user.getEmail());
+	    return jdbcTemplate.update(sql, userequest.getName(), userequest.getEmail());
 	}
 
 	//Update a user
-    public int updateUser(User user) {
+    public int updateUser(UserRequest userrequest) {
         String sql = "UPDATE user SET name = ?, email = ? WHERE id = ?";
-        return jdbcTemplate.update(sql, user.getName(), user.getEmail(), user.getId());
+        return jdbcTemplate.update(sql, userrequest.getName(), userrequest.getEmail(),userrequest.getId());
     }
     
     public int deleteUser(int id) {

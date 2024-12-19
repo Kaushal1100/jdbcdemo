@@ -1,13 +1,15 @@
 package com.example.demo.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.demo.User;
+import com.example.demo.entity.User;
 import com.example.demo.repository.UserRepository;
-
-import java.util.List;
+import com.example.demo.request.UserRequest;
+import com.example.demo.response.UserResponse;
 
 @Service
 public class UserService {
@@ -21,9 +23,20 @@ public class UserService {
     }
 
     // Add a new user (Transactional)
+//    public User addUser(UserRequest userrequest) {
+//    	int rowsAffected = userRepository.addUser(userrequest);
+//        if (rowsAffected > 0) {
+//            return "User added successfully";
+//        } else {
+//            throw new RuntimeException("Failed to add user");
+//        }
+    	
+    	
+    
     @Transactional
-    public String addUser(User user) {
-        int rowsAffected = userRepository.addUser(user);
+    public String addUser(UserRequest userrequest) {
+    	
+        int rowsAffected = userRepository.addUser(userrequest);
         if (rowsAffected > 0) {
             return "User added successfully";
         } else {
@@ -33,9 +46,9 @@ public class UserService {
 
     // Update a user (Transactional)
     @Transactional
-    public String updateUser(int id, User user) {
-        user.setId(id);
-        int rowsAffected = userRepository.updateUser(user);
+    public String updateUser(int id, UserRequest userrequest) {
+    	userrequest.setId(id);
+        int rowsAffected = userRepository.updateUser(userrequest);
         if (rowsAffected > 0) {
             return "User updated successfully";
         } else {
