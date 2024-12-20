@@ -29,7 +29,7 @@ public class UserController {
 
 	@GetMapping("/demo")
 	public String check() {
-		return "Welcome to my demo JDBC";
+		return "Welcome to my new practice JDBC";
 	}
 
 	@GetMapping("/userdetail")
