@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.entity.User;
-import com.example.demo.repository.UserRepository;
 import com.example.demo.request.UserRequest;
+import com.example.demo.response.UserResponse;
 import com.example.demo.service.UserService;
 
 @RestController
@@ -32,14 +33,19 @@ public class UserController {
 		return "Welcome to my new practice JDBC";
 	}
 
-	@GetMapping("/userdetail")
-	public List<User> getUserDetail() {
-		return userService.getAllUsers();
+	@GetMapping(value="/userdetail",consumes = "application/json", produces = "application/json")
+	public List<UserResponse> getUserDetail() {
+		List<User> userList=userService.getAllUsers();
+		List<UserResponse> userResponseList=new ArrayList();
+		userList.stream().forEach(user -> {
+			userResponseList.add(new UserResponse(user));
+		});
+		return userResponseList;
 
 	}
 
 	// Adduser
-	@PostMapping("/user")
+	@PostMapping(value="/user",consumes = "application/json", produces = "text" )
 	public ResponseEntity<String> createUser(@RequestBody UserRequest userrequest) {
 
 		try {
@@ -52,7 +58,7 @@ public class UserController {
 	}	
 	
 	// Updateuser
-	@PutMapping("/user/{id}")
+	@PutMapping(value="/user/{id}",consumes = "application/json", produces = "text" )
 	public ResponseEntity<String> updateUser(@PathVariable int id, @RequestBody UserRequest userrequest) {
 		try {
 			String result = userService.updateUser(id, userrequest);
@@ -63,7 +69,7 @@ public class UserController {
 	}
 
 	// DeleteUser
-	@DeleteMapping("/user/{id}")
+	@DeleteMapping(value="/user/{id}",consumes = "application/json")
 	public ResponseEntity<String> deleteUser(@PathVariable int id) {
 		try {
 			userService.deleteUser(id);
