@@ -30,10 +30,15 @@ public class User {
 	private String email;
 	
 	public User(UserRequest userrequest) {
+		this.id=userrequest.getId();
 		this.name=userrequest.getName();
 		this.email=userrequest.getEmail();
 	}
 	
-	
+	public User(int id,String name, String email) {
+		this.id=id;
+		this.name=name;
+		this.email=email;
+	}
 
 }
