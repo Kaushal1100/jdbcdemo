@@ -56,12 +56,10 @@ public class UserService {
 
     // Delete a user
     @Transactional
-    public String deleteUser(int id) {
+    public void deleteUser(int id) {
         int rowsAffected = userRepository.deleteUser(id);
-        if (rowsAffected > 0) {
-            return "User deleted successfully";
-        } else {
-            throw new RuntimeException("Failed to delete user");
+        if (rowsAffected == 0) {
+            throw new RuntimeException("Failed to delete user with ID " + id);
         }
     }
 

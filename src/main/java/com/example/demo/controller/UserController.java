@@ -63,11 +63,17 @@ public class UserController {
 	
 	@DeleteMapping(value="/user/{id}", produces = "application/json")
 	public ResponseEntity<Map<String, String>> deleteUser(@PathVariable int id) {
-		userService.deleteUser(id);
 		Map<String, String> response = new HashMap<>();
+			
+		try {
+		userService.deleteUser(id);
 		response.put("message", "User with ID " + id + " was deleted successfully.");
-
 		return ResponseEntity.status(HttpStatus.OK).body(response);
+		}
+		catch(Exception e) {
+			response.put("error", "Unable to delete User id"+id);
+			return ResponseEntity.badRequest().body(response);
+		}
 	}
 
 

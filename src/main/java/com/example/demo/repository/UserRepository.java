@@ -69,7 +69,7 @@ public class UserRepository {
 	    if (rowsUpdated > 0) {
 	        return user; // Successfully updated the user, return the updated user object
 	    } else {
-	        throw new RuntimeException("User not found with id: " + user.getId()); // Handle the failure if no rows are updated
+	        throw new RuntimeException("User with id: " + user.getId()+"not found"); // Handle the failure if no rows are updated
 	    }
 	}
 
