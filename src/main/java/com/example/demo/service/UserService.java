@@ -34,36 +34,32 @@ public class UserService {
     	
     
     @Transactional
-    public String addUser(UserRequest userrequest) {
-    	
-        int rowsAffected = userRepository.addUser(userrequest);
-        if (rowsAffected > 0) {
-            return "User added successfully";
-        } else {
-            throw new RuntimeException("Failed to add user");
-        }
+	public User addUser(UserRequest userRequest) {
+
+		User user = new User(userRequest);
+
+//    	user.setName(userRequest.getName());// DTO only till Service layer
+//    	user.setEmail(userRequest.getEmail());
+
+		return userRepository.addUser(user);
+
+        
     }
 
     // Update a user (Transactional)
     @Transactional
-    public String updateUser(int id, UserRequest userrequest) {
-    	userrequest.setId(id);
-        int rowsAffected = userRepository.updateUser(userrequest);
-        if (rowsAffected > 0) {
-            return "User updated successfully";
-        } else {
-            throw new RuntimeException("Failed to update user");
-        }
+	public User updateUser(int id, UserRequest userRequest) {
+		User user = new User(userRequest);
+		return userRepository.updateUser(user);
+
     }
 
     // Delete a user
     @Transactional
-    public String deleteUser(int id) {
+    public void deleteUser(int id) {
         int rowsAffected = userRepository.deleteUser(id);
-        if (rowsAffected > 0) {
-            return "User deleted successfully";
-        } else {
-            throw new RuntimeException("Failed to delete user");
+        if (rowsAffected == 0) {
+            throw new RuntimeException("Failed to delete user with ID " + id);
         }
     }
 

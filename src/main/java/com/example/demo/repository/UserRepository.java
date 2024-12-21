@@ -1,15 +1,19 @@
 package com.example.demo.repository;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.example.demo.entity.User;
 import com.example.demo.request.UserRequest;
-import com.example.demo.response.UserResponse;
 
 @Repository
 public class UserRepository {
@@ -32,16 +36,64 @@ public class UserRepository {
 	}
 
 	// AddUser
-	public int addUser(UserRequest userequest) {
+	public User addUser(User user) {
+		
 		String sql = "INSERT INTO user (name, email) VALUES (?, ?)";
-		return jdbcTemplate.update(sql, userequest.getName(), userequest.getEmail());
+//		int rowsaffected= jdbcTemplate.update(sql, user.getName(), user.getEmail());
+		
+		// Use KeyHolder to retrieve the auto-generated ID
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        // Execute the insert query
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, user.getName());
+            ps.setString(2, user.getEmail());
+            return ps;
+        }, keyHolder);
+
+        // Retrieve the auto-generated key (assumes the key is numeric)
+        int generateId=keyHolder.getKey().intValue();
+		return new User(generateId,user.getName(),user.getEmail());	
+		
 	}
+	
 
 	// Update a user
-	public int updateUser(UserRequest userrequest) {
-		String sql = "UPDATE user SET name = ?, email = ? WHERE id = ?";
-		return jdbcTemplate.update(sql, userrequest.getName(), userrequest.getEmail(), userrequest.getId());
+	public User updateUser(User user) {
+	    String sql = "UPDATE user SET name = ?, email = ? WHERE id = ?";
+
+	    // Perform the update operation (no need for KeyHolder)
+	    int rowsUpdated = jdbcTemplate.update(sql, user.getName(), user.getEmail(), user.getId());
+
+	    if (rowsUpdated > 0) {
+	        return user; // Successfully updated the user, return the updated user object
+	    } else {
+	        throw new RuntimeException("User with id: " + user.getId()+"not found"); // Handle the failure if no rows are updated
+	    }
 	}
+
+//	public int updateUser(UserRequest userrequest) 
+//		public User updateUser(User user){
+//		String sql = "UPDATE user SET name = ?, email = ? WHERE id = ?";
+//		
+//		KeyHolder keyHolder = new GeneratedKeyHolder();
+//
+//        // Execute the insert query
+//        jdbcTemplate.update(connection -> {
+//            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+//            ps.setString(1, user.getName());
+//            ps.setString(2, user.getEmail());
+//            ps.setInt(3, user.getId()); 
+//            
+//            return ps;
+//        }, keyHolder);
+//
+//        // Retrieve the auto-generated key (assumes the key is numeric)
+//        int generateId=keyHolder.getKey().intValue();
+//		return new User(generateId,user.getName(),user.getEmail());
+////		return jdbcTemplate.update(sql, userrequest.getName(), userrequest.getEmail(), userrequest.getId());
+//	}
 
 	public int deleteUser(int id) {
 		String sql = "DELETE FROM user WHERE id = ?";

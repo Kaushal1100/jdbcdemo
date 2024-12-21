@@ -1,7 +1,9 @@
 package com.example.demo.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,56 +30,63 @@ public class UserController {
 	
 	UserService userService;
 
-	@GetMapping("/demo")
-	public String check() {
-		return "Welcome to my new practice JDBC";
-	}
-
-	@GetMapping(value="/userdetail",consumes = "application/json", produces = "application/json")
-	public List<UserResponse> getUserDetail() {
+		@GetMapping(value="/userdetail",consumes = "application/json", produces = "application/json")
+	public ResponseEntity<List<UserResponse>> getUserDetail() {
 		List<User> userList=userService.getAllUsers();
-		List<UserResponse> userResponseList=new ArrayList();
+		List<UserResponse> userResponseList=new ArrayList<>();
 		userList.stream().forEach(user -> {
 			userResponseList.add(new UserResponse(user));
 		});
-		return userResponseList;
+		return ResponseEntity.ok(userResponseList);
 
 	}
 
 	// Adduser
-	@PostMapping(value="/user",consumes = "application/json", produces = "text" )
-	public ResponseEntity<String> createUser(@RequestBody UserRequest userrequest) {
-
-		try {
-			userService.addUser(userrequest);
-			return ResponseEntity.status(HttpStatus.CREATED).body("User added successfully");
-		} catch (RuntimeException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-		}
-
+	@PostMapping(value="/user",consumes = "application/json", produces = "application/json" )
+	public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest userRequest) {
+		
+		User user=userService.addUser(userRequest);
+		UserResponse userResponse=new UserResponse(user);
+		return ResponseEntity.ok(userResponse);
+			
 	}	
 	
 	// Updateuser
-	@PutMapping(value="/user/{id}",consumes = "application/json", produces = "text" )
-	public ResponseEntity<String> updateUser(@PathVariable int id, @RequestBody UserRequest userrequest) {
+	@PutMapping(value="/user/{id}",consumes = "application/json", produces = "application/json" )
+	public ResponseEntity<UserResponse> updateUser(@PathVariable int id, @RequestBody UserRequest userRequest) {
+			
+			User user = userService.updateUser(id, userRequest);
+			UserResponse userResponse=new UserResponse(user);
+			return ResponseEntity.status(HttpStatus.OK).body(userResponse);
+		
+	}
+	
+	@DeleteMapping(value="/user/{id}", produces = "application/json")
+	public ResponseEntity<Map<String, String>> deleteUser(@PathVariable int id) {
+		Map<String, String> response = new HashMap<>();
+			
 		try {
-			String result = userService.updateUser(id, userrequest);
-			return ResponseEntity.status(HttpStatus.OK).body(result);
-		} catch (RuntimeException e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		userService.deleteUser(id);
+		response.put("message", "User with ID " + id + " was deleted successfully.");
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+		}
+		catch(Exception e) {
+			response.put("error", "Unable to delete User id"+id);
+			return ResponseEntity.badRequest().body(response);
 		}
 	}
 
+
 	// DeleteUser
-	@DeleteMapping(value="/user/{id}",consumes = "application/json")
-	public ResponseEntity<String> deleteUser(@PathVariable int id) {
-		try {
-			userService.deleteUser(id);
-			return ResponseEntity.status(HttpStatus.OK).body("User Deleted");
-		} catch (RuntimeException e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
+//	@DeleteMapping(value="/user/{id}",consumes = "application/json")
+//	public ResponseEntity<String> deleteUser(@PathVariable int id) {
+//		try {
+//			userService.deleteUser(id);
+//			return ResponseEntity.status(HttpStatus.OK).body("User Deleted");
+//		} catch (RuntimeException e) {
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+//		}
+//	}
 
 	@GetMapping("/userlist") // http://localhost:8081/api/user/paginated?page=1&pageSize=5
 	public ResponseEntity<List<User>> getUsersPagination(@RequestParam int page, @RequestParam int pageSize) {
